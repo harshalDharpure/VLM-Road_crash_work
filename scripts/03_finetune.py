@@ -361,47 +361,38 @@ def train_epoch(
             model_inputs["image_sizes"] = batch["image_sizes"].to(device)
         
         # Forward pass with mixed precision
-        with torch.amp.autocast('cuda', enabled=use_scaler):
-            outputs = model(**model_inputs)
-            loss = outputs.loss
-            # Scale loss for gradient accumulation
-            loss = loss / gradient_accumulation_steps
+        from torch.amp import autocast
         
-        # Clear activations before backward to save memory
-        if device != "cpu" and torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        for step, batch in enumerate(train_loader):
         
-        # Backward pass
-        if use_scaler:
-            scaler.scale(loss).backward()
-        else:
-            loss.backward()
+            with autocast(device_type='cuda', dtype=torch.float16, enabled=use_scaler):
+                outputs = model(**model_inputs)
+                loss = outputs.loss / gradient_accumulation_steps
         
-        # Clear cache after backward
-        if device != "cpu" and torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        
-        # Update weights every gradient_accumulation_steps
-        if (step + 1) % gradient_accumulation_steps == 0:
-            # Gradient clipping
-            if max_grad_norm > 0:
-                if use_scaler:
-                    scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
-            
+            # Backward
             if use_scaler:
-                scaler.step(optimizer)
-                scaler.update()
+                scaler.scale(loss).backward()
             else:
-                optimizer.step()
-            optimizer.zero_grad()
-            
-            # Clear cache after optimizer step to free memory
-            if device != "cpu" and torch.cuda.is_available():
-                torch.cuda.empty_cache()
+                loss.backward()
         
-        # Store loss value before deleting tensors
-        loss_value = loss.item() * gradient_accumulation_steps
+            # Step
+            if (step + 1) % gradient_accumulation_steps == 0:
+        
+                if max_grad_norm > 0:
+                    if use_scaler:
+                        scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
+        
+                if use_scaler:
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
+                    optimizer.step()
+        
+                optimizer.zero_grad(set_to_none=True)  # IMPORTANT (saves memory)
+        
+            # Store loss
+            loss_value = loss.item() * gradient_accumulation_steps
         
         # Check for NaN or Inf loss
         import math
