@@ -622,22 +622,24 @@ def main():
                 if 'Linear4bit' in str(type(module)) or 'Linear8bit' in str(type(module)):
                     is_quantized = True
                     break
-            
-           if is_quantized:
+
+            if is_quantized:
                 print("Preparing quantized model for LoRA training...")
-                # Enable gradient checkpointing to save memory (works better with LoRA)
-                model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
+                
+                # Enable gradient checkpointing to save memory
+                model = prepare_model_for_kbit_training(
+                    model, use_gradient_checkpointing=True
+                )
+                
                 if hasattr(model, 'gradient_checkpointing_enable'):
                     model.gradient_checkpointing_enable()
+                
                 model.config.use_cache = False
                 print("Enabled gradient checkpointing for memory efficiency")
-
-                model.config.use_cache = False
 
                 for name, param in model.named_parameters():
                     if "mm_projector" in name or "lm_head" in name:
                         param.requires_grad = True
-            
             # Configure LoRA
             # Target language model layers (not vision encoder)
             # For Mistral-based models, target these attention and MLP layers
