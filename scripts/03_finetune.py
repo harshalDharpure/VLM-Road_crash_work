@@ -512,84 +512,102 @@ def validate_epoch(model, dataloader, processor, device, epoch: int):
 # Main Training Function
 # ------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="Fine-tune LLaVA-NeXT for video summarization")
-    parser.add_argument("--resume", type=str, default=None, help="Path to checkpoint to resume from")
-    parser.add_argument("--config", type=str, default=None, help="Path to config file")
+    parser = argparse.ArgumentParser(
+        description="Fine-tune LLaVA-NeXT for video summarization"
+    )
+    parser.add_argument("--resume", type=str, default=None,
+                        help="Path to checkpoint to resume from")
+    parser.add_argument("--config", type=str, default=None,
+                        help="Path to config file")
     args = parser.parse_args()
-    
+
     # Load config
     config = get_config(args.config)
-    
-    # Setup paths - use dot notation or direct dict access
-    root_dir = Path(config.get("dataset.root_dir") or config.config["dataset"]["root_dir"])
-    processed_dir = root_dir / (config.get("dataset.processed_dir") or config.config["dataset"]["processed_dir"])
+
+    # Setup paths
+    root_dir = Path(
+        config.get("dataset.root_dir")
+        or config.config["dataset"]["root_dir"]
+    )
+    processed_dir = root_dir / (
+        config.get("dataset.processed_dir")
+        or config.config["dataset"]["processed_dir"]
+    )
+
     split_info_file = processed_dir / "split_info.json"
-    
     train_annotations_file = processed_dir / "annotations_train.json"
     val_annotations_file = processed_dir / "annotations_val.json"
-    
+
     # Check required files
     if not split_info_file.exists():
         print("ERROR: Run scripts/01_process_data.py first.")
         sys.exit(1)
-    
+
     if not train_annotations_file.exists() or not val_annotations_file.exists():
-        print("ERROR: Training/validation annotations not found. Run scripts/01_process_data.py first.")
+        print("ERROR: Training/validation annotations not found.")
         sys.exit(1)
-    
+
     # Load split info
     with open(split_info_file) as f:
         split_info = json.load(f)
-    
+
     # Load annotations
     with open(train_annotations_file) as f:
         train_annotations = json.load(f)
-    
+
     with open(val_annotations_file) as f:
         val_annotations = json.load(f)
-    
+
     train_videos = split_info["splits"]["train"]
     val_videos = split_info["splits"]["val"]
-    
+
     print("=" * 60)
     print("FINE-TUNING LLaVA-NeXT FOR VIDEO SUMMARIZATION")
     print("=" * 60)
     print(f"Train videos: {len(train_videos)}")
     print(f"Val videos: {len(val_videos)}")
-    
+
     # Device setup
     device = config.get("model.device") or config.config["model"]["device"]
+
     if device == "cuda" and not torch.cuda.is_available():
         device = "cpu"
         print("CUDA not available, using CPU")
-    
+
     print(f"Device: {device}")
-    
+
     # Clear GPU cache before loading model
     if device != "cpu" and torch.cuda.is_available():
-        torch.cuda.empty_cache()
         import gc
+        torch.cuda.empty_cache()
         gc.collect()
         torch.cuda.empty_cache()
+
         device_id = torch.cuda.current_device()
-        print(f"GPU {device_id} memory before loading: {torch.cuda.memory_allocated(device_id) / 1e9:.2f}GB allocated, {torch.cuda.memory_reserved(device_id) / 1e9:.2f}GB reserved")
-    
-    # Load model wrapper to get processor and model
+        print(
+            f"GPU {device_id} memory before loading: "
+            f"{torch.cuda.memory_allocated(device_id) / 1e9:.2f}GB allocated, "
+            f"{torch.cuda.memory_reserved(device_id) / 1e9:.2f}GB reserved"
+        )
+
+    # Load model
     print("\nLoading model...")
     model_name = config.get("model.vision_model") or config.config["model"]["vision_model"]
+
     wrapper = LLaVANeXTWrapper(
         model_name=model_name,
         device=device
     )
-    
+
     model = wrapper.model
     processor = wrapper.processor
     is_next = wrapper.is_next
-    
+
+    # Enable memory optimizations (ADD THIS)
+    model.config.use_cache = False
+
     # Use LoRA/PEFT for parameter-efficient fine-tuning
-    # This is much more stable with quantized models
-    use_lora = True
-    if use_lora:
+    use_lora = True    if use_lora:
         try:
             from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
             from peft import TaskType
