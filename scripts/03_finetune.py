@@ -255,6 +255,8 @@ def main():
         lr=1e-5
     )
 
+    train_losses = []
+
     for epoch in range(2):
         train_loss = train_epoch(model, train_loader, optimizer, processor, device, grad_accum=2)
         print(f"Epoch {epoch} Train Loss:", train_loss)
@@ -266,6 +268,16 @@ def main():
             model.state_dict(),
             save_dir / f"model_epoch_{epoch}.pt"
         )
+        train_losses.append(train_loss)
+
+    import json
+    from pathlib import Path
+    
+    save_dir = Path("results")
+    save_dir.mkdir(exist_ok=True)
+    
+    with open(save_dir / "training_loss.json", "w") as f:
+        json.dump(train_losses, f, indent=2)
 
 
 if __name__ == "__main__":
