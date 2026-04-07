@@ -259,6 +259,14 @@ def main():
         train_loss = train_epoch(model, train_loader, optimizer, processor, device, grad_accum=2)
         print(f"Epoch {epoch} Train Loss:", train_loss)
 
+        save_dir = Path("results")
+        save_dir.mkdir(exist_ok=True)
+        
+        torch.save(
+            model.state_dict(),
+            save_dir / f"model_epoch_{epoch}.pt"
+        )
+
 
 if __name__ == "__main__":
     main()
