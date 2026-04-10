@@ -269,7 +269,6 @@ def main():
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "train_loss": train_loss,
-            "val_loss": val_loss
         }
         
         torch.save(
