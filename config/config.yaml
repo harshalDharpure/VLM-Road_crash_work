@@ -24,12 +24,12 @@ model:
   vision_model: "llava-hf/llava-v1.6-mistral-7b-hf"
   language_model: "llava-hf/llava-v1.6-mistral-7b-hf"  
   device: "cuda"
-  batch_size: 1
-  max_frames: 2  # For 5-second videos with every 5th frame
+  batch_size: 2
+  max_frames: 3  # For 5-second videos with every 5th frame
 
 # Training Configuration
 training:
-  num_epochs: 2
+  num_epochs: 4
   learning_rate: 5e-6  # Very conservative learning rate to prevent NaN losses
   weight_decay: 0.01
   warmup_steps: 100
