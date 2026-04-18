@@ -255,8 +255,10 @@ def main():
     )
 
     train_losses = []
+    
+    num_epochs = int(config.config["training"]["num_epochs"])
 
-    for epoch in range(2):
+    for epoch in range(num_epochs):
         train_loss = train_epoch(model, train_loader, optimizer, processor, device, grad_accum=2)
         print(f"Epoch {epoch} Train Loss:", train_loss)
 
