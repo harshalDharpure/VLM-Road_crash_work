@@ -25,7 +25,7 @@ model:
   language_model: "llava-hf/llava-v1.6-mistral-7b-hf"  
   device: "cuda"
   batch_size: 2
-  max_frames: 3  # For 5-second videos with every 5th frame
+  max_frames: 15  # For 5-second videos with every 5th frame
 
 # Training Configuration
 training:
