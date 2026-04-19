@@ -1,7 +1,6 @@
 # Optimize and Run VLM Road Crash Project from Scratch (Colab / Kaggle)
-
-**For:** Tanay and Tripti  
-**Goal:** Run the complete pipeline from scratch on **Google Colab** or **Kaggle** and produce reproducible results and a short report.
+ 
+**Goal:** Optimize and Run the complete pipeline from scratch on **Google Colab** and produce reproducible results and a short report.
 
 ---
 
@@ -13,21 +12,21 @@
 
 ---
 
-## Task Split: Tanay & Tripti
+## Task:
 
-| Phase | Tanay | Tripti |
+| Phase | Tripti|
 |-------|--------|--------|
 | **1. Setup & data** | [x] Own notebook: env + data pipeline | [x] Same (or use shared processed data) |
-| **2. Baseline** | [x] Run zero-shot evaluation (02) | — |
+
 | **3. Training** | — | [x] Run fine-tuning (03) |
 | **4. Evaluation** | — | [x] Run fine-tuned eval (04) + comparison (05) |
-| **5. Report** | [x] Document: setup, data stats, zero-shot metrics | [x] Document: training curves, fine-tuned metrics, comparison |
+| **5. Report** | [x] Document: training curves, fine-tuned metrics, comparison |
 
-**Outcome:** One shared Colab/Kaggle notebook (or two linked notebooks) that together run the **full pipeline from scratch**, plus a short joint report with tables and findings.
+**Outcome:** One Colab notebook run the **full pipeline from scratch**, plus a short report with tables and findings.
 
 ---
 
-## Prerequisites (Tanay & Tripti)
+## Prerequisites 
 
 1. **Accounts**
    - Google account (for Colab) and/or Kaggle account.
@@ -47,7 +46,7 @@
 
 ---
 
-## Phase 1: Environment Setup (Tanay & Tripti)
+## Phase 1: Environment Setup (Tripti)
 
 **Where:** First cells of the notebook (Colab or Kaggle).
 
@@ -129,51 +128,7 @@ print("GT file exists:", gt_file.exists())
 
 ---
 
-## Phase 2: Data Pipeline – Run from Scratch (Both / Tanay Lead)
-
-**Script:** `scripts/01_process_data.py`
-
-**What it does:** Finds all MP4s, extracts frames (5-sec segment, every 5th frame), parses Excel GT, splits into train/val/test (70/15/15), writes:
-
-- `data/processed/split_info.json`
-- `data/processed/annotations_train.json`, `annotations_val.json`, `annotations_test.json`
-- Optionally frames under `data/processed/frames/` (can disable or limit to save disk on Colab/Kaggle).
-
-**Run:**
-
-```python
-%cd /content/vlm-road-crash  # or /kaggle/working/vlm-road-crash
-!python scripts/01_process_data.py
-```
-
-**Tanay’s tasks:**
-
-- Ensure config paths are correct and dataset is a subset if needed.
-- Run the script and confirm no errors.
-- Note in the report: number of videos, train/val/test sizes, and where processed outputs are stored (paths).
-
----
-
-## Phase 3: Zero-Shot Evaluation – Baseline (Tanay)
-
-**Script:** `scripts/02_evaluate_zero_shot.py`
-
-**What it does:** Loads pretrained LLaVA-NeXT, runs on the **test** set, computes BLEU, METEOR, ROUGE, BERTScore, CIDEr, NLI, and writes:
-
-- `results/zero_shot/metrics.json`
-- `results/zero_shot/detailed_results.json`
-
-**Run:**
-
-```python
-!python scripts/02_evaluate_zero_shot.py
-```
-
-**Tanay’s tasks:**
-
-- Run and confirm `results/zero_shot/metrics.json` is generated.
-- In the report: paste or summarize the main metrics (e.g. BLEU-1/4, METEOR, ROUGE-1/L, NLI) and mention that this is the **baseline (no fine-tuning)**.
-
+## Phase 2: Data Pipeline – Run from Scratch
 ---
 
 ## Phase 4: Fine-Tuning (Tripti)
@@ -201,7 +156,7 @@ print("GT file exists:", gt_file.exists())
 
 **Tripti’s tasks:**
 
-- Run training and confirm checkpoints and loss files appear.
+- Optimize and Run training and confirm checkpoints and loss files appear.
 - In the report: plot or table training/validation loss per epoch and mention best checkpoint path.
 
 ---
