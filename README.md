@@ -1,4 +1,4 @@
-# Run VLM Road Crash Project from Scratch (Colab / Kaggle)
+# Optimize and Run VLM Road Crash Project from Scratch (Colab / Kaggle)
 
 **For:** Tanay and Tripti  
 **Goal:** Run the complete pipeline from scratch on **Google Colab** or **Kaggle** and produce reproducible results and a short report.
