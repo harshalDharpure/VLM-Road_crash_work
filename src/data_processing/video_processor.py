@@ -70,6 +70,7 @@ class VideoProcessor:
             
             # Sample every Nth frame
             if frame_count % self.frame_interval == 0:
+                frame = cv2.resize(frame, (112, 112))
                 frames.append(frame.copy())
                 frame_indices.append(frame_count)
                 segment_frame_count += self.frame_interval
