@@ -333,4 +333,40 @@ These are **optional enhancements** for a top-tier journal submission:
 
 ---
 
+Canonical zero-shot (your main/best result)
+What it does
+
+Takes frames from the video using every_5th sampling (1 frame every 5 frames).
+Picks one middle frame from those sampled frames.
+Sends that single image to LLaVA-NeXT with the structured_event prompt.
+Model writes one crash summary from that one frame.
+Think of it like:
+You watch a crash video, pause at one important moment (middle of the clip), take one screenshot, and ask the model: “Describe this crash.”
+
+Your result: 66.4% NLI (best faithfulness)
+
+Zero-shot collage
+What it does
+
+Still uses every_5th sampling.
+Instead of one frame, it combines multiple key frames into one big image (a collage/grid).
+Sends that collage to the model with a prompt that says these are temporal frames.
+Model tries to describe the crash from several moments at once.
+Think of it like:
+You take 4–5 screenshots from different times in the video, paste them into one picture, and ask: “Describe what happened across these moments.”
+
+Your result: 4.4% NLI (much worse faithfulness)
+
+
+Canonical (1 frame):
+Model sees one frame where two cars are touching.
+Output might be: “A grey car and an orange truck collided on a two-lane road during overtaking.”
+→ Closer to ground truth → high NLI.
+
+Collage (many frames):
+Model sees 4 frames at once and may get confused, mix events, or talk about “sequence of images.”
+Output might be: “These frames show a car following a truck… investigation will determine cause…”
+→ More generic / wrong details → low NLI.
+
+
 *This document summarizes all completed work on the Crash-1500 VLM summarization project as of May 29, 2026.*
