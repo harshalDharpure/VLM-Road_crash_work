@@ -2,8 +2,8 @@
 
 # Dataset Configuration
 dataset:
-  root_dir: "/home/vaneet_2221cs15/vlmvideos/Vaneet_mam_vlm"
-  videos_dir: "videos"
+  root_dir: "/content/data"
+  videos_dir: "videos_subset"
   ground_truth_file: "Car_Crash_Text_Dataset (3).xlsx"
   processed_dir: "data/processed"
   
@@ -24,12 +24,12 @@ model:
   vision_model: "llava-hf/llava-v1.6-mistral-7b-hf"
   language_model: "llava-hf/llava-v1.6-mistral-7b-hf"  
   device: "cuda"
-  batch_size: 4
-  max_frames: 30  # For 5-second videos with every 5th frame
+  batch_size: 2
+  max_frames: 15  # For 5-second videos with every 5th frame
 
 # Training Configuration
 training:
-  num_epochs: 5
+  num_epochs: 4
   learning_rate: 5e-6  # Very conservative learning rate to prevent NaN losses
   weight_decay: 0.01
   warmup_steps: 100
